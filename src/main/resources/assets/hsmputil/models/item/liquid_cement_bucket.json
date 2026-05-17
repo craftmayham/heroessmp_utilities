@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "hsmputil:item/liquid_cement_bucket"
+  }
+}

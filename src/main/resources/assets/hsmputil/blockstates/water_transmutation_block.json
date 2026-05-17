@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": { "model": "hsmputil:block/transmutation_block" }
+  }
+}
