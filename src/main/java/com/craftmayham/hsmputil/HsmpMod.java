@@ -2,10 +2,14 @@ package com.craftmayham.hsmputil;
 
 import com.craftmayham.hsmputil.block.LiquidHoneyBlock;
 import com.craftmayham.hsmputil.block.ModBlocks;
+import com.craftmayham.hsmputil.effect.ModEffects;
+import com.craftmayham.hsmputil.entity.ModEntities;
+import com.craftmayham.hsmputil.entity.client.CockroachRenderer;
 import com.craftmayham.hsmputil.fluid.ModFluidTypes;
 import com.craftmayham.hsmputil.fluid.ModFluids;
 import com.craftmayham.hsmputil.item.ModItems;
 import com.mojang.logging.LogUtils;
+import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
@@ -79,8 +83,10 @@ public class HsmpMod
 
         ModFluids.register(modEventBus);
         ModFluidTypes.register(modEventBus);
+        ModEffects.register(modEventBus);
         ModBlocks.register(modEventBus);
         ModItems.register(modEventBus);
+        ModEntities.register(modEventBus);
         // Register our mod's ForgeConfigSpec so that Forge can create and load the config file for us
     }
 
@@ -108,7 +114,7 @@ public class HsmpMod
     {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
-
+            EntityRenderers.register(ModEntities.COCKROACH.get(), CockroachRenderer::new);
         }
     }
 
