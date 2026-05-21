@@ -22,21 +22,15 @@ import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
-import net.minecraft.world.phys.AABB;
-import net.minecraftforge.common.util.LazyOptional;
+
 import net.minecraftforge.event.entity.living.LivingChangeTargetEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.logging.log4j.core.jmx.Server;
 
-import javax.annotation.Nullable;
-import java.util.EnumSet;
-import java.util.Objects;
-import java.util.Optional;
+
 import java.util.UUID;
-import java.util.function.Predicate;
+
 
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -122,7 +116,7 @@ public class AllTamedGoal {
         }
 
         private static Player getOwner(Mob tamed) {
-            if (tamed instanceof net.minecraft.world.entity.TamableAnimal tamable) {
+            if (tamed instanceof TamableAnimal tamable) {
                 LivingEntity owner = tamable.getOwner();
                 if (owner instanceof Player p) {
                     return p;
@@ -141,7 +135,7 @@ public class AllTamedGoal {
         private static boolean isOwnerOf(Entity tamed, Entity potentialOwner) {
             if (!(potentialOwner instanceof Player player) || tamed == null) return false;
 
-            if (tamed instanceof net.minecraft.world.entity.TamableAnimal tamable) {
+            if (tamed instanceof TamableAnimal tamable) {
                 if (tamable.isOwnedBy(player)) {
                     return true;
                 }

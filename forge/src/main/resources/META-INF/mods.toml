@@ -1,0 +1,35 @@
+modLoader = "javafml"
+loaderVersion = "[43,)"
+#issueTrackerURL = ""
+license = "${mod_license}"
+
+[[mods]]
+modId = "hsmputil"
+version = "${version}"
+displayName = "${mod_name}"
+authors = "${mod_author}"
+description = '''
+PalladiumCore template mod
+'''
+#logoFile = ""
+
+[[dependencies.hsmputil]]
+modId = "forge"
+mandatory = true
+versionRange = "[43,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.hsmputil]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.19.2,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.hsmputil]]
+modId = "palladium"
+mandatory = true
+versionRange = "[1.20.1-4.2.0,)"
+ordering = "AFTER"
+side = "BOTH"
