@@ -23,12 +23,11 @@ public class TeamOpenPacket {
 
     public static void handle(TeamOpenPacket msg, Supplier<NetworkEvent.Context> ctx) {
 
-        System.out.println("TEAM OPEN PACKET RECEIVED");
 
         ctx.get().enqueueWork(() -> {
 
             Minecraft.getInstance().setScreen(
-                    new HeroOrVillainScreen(Component.literal("My Gui"))
+                    new HeroOrVillainScreen(Component.literal("Hero or Villain?"))
             );
         });
 

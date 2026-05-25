@@ -29,9 +29,16 @@ public class ClientOverlay {
         LocalPlayer player = Minecraft.getInstance().player;
 
         if (player == null) return;
-
         boolean hasEffect = player.hasEffect(ModEffects.HEAT_STROKE.get());
+        if (hasEffect) {
 
+            Minecraft.getInstance().gameRenderer.loadEffect(
+                    new ResourceLocation("shaders/post/blobs2.json")
+            );
+        }
+        if (!hasEffect) {
+            Minecraft.getInstance().gameRenderer.shutdownEffect();
+        }
         float hasEffectFloat = hasEffect ? 0.02F : 0.0F;
 
        alpha += (hasEffectFloat - alpha) * 0.03F;

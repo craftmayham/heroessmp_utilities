@@ -13,7 +13,7 @@ public class ModEffects {
             = DeferredRegister.create(ForgeRegistries.MOB_EFFECTS, HsmpMod.MODID);
 
     public static final RegistryObject<MobEffect> HEAT_STROKE = MOB_EFFECTS.register("heat_stroke",
-            () -> new HeatStrokeEffect(MobEffectCategory.HARMFUL, 3124687));
+            () -> new HeatStrokeEffect(MobEffectCategory.HARMFUL, 16746496));
 
     public static void register(IEventBus bus) {
         MOB_EFFECTS.register(bus);

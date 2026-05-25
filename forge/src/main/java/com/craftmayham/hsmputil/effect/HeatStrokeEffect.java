@@ -12,6 +12,15 @@ public class HeatStrokeEffect extends MobEffect {
 
     @Override
     public void applyEffectTick(LivingEntity entity, int amplifier) {
-
+        if (entity.getArmorCoverPercentage() != 0) {
+            entity.hurt(entity.damageSources().dryOut(), 1.0F);
+        }
+        if (entity.isInWaterOrRain()) {
+            entity.removeEffect(ModEffects.HEAT_STROKE.get());
+        }
+    }
+    @Override
+    public boolean isDurationEffectTick(int duration, int amplifier) {
+        return true;
     }
 }
