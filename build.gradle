@@ -46,6 +46,14 @@ allprojects {
             url 'https://maven.threetag.net'
         }
 
+        maven { url = "https://maven.blamejared.com/" }
+
+        maven {
+            url "https://www.cursemaven.com"
+            content {
+                includeGroup "curse.maven"
+            }
+        }
         // Parchment
         maven {
             url = 'https://maven.parchmentmc.net/'
@@ -96,6 +104,10 @@ allprojects {
             url = 'https://maven.ladysnake.org/releases'
         }
 
+        // Curios
+        maven {
+            url = 'https://maven.theillusivec4.top/'
+        }
         // Porting Lib
         maven { url = "https://mvn.devos.one/snapshots/" }
 
@@ -109,9 +121,7 @@ allprojects {
 
         maven { url 'https://jitpack.io' }
 
-        maven {
-            url = "https://maven.blamejared.com"
-        }
+
     }
 
     tasks.withType(JavaCompile) {

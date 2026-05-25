@@ -63,7 +63,7 @@ public class ClientOverlay {
 
         event.getGuiGraphics().blit(HEAT_OVERLAY,0,0,0,0,w,h,512,256);
        // event.getGuiGraphics().setColor(1f,1f,1f,1f);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 0.0f);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0f);
         RenderSystem.disableBlend();
 
     }

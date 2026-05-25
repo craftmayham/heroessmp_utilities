@@ -1,19 +1,29 @@
 package com.craftmayham.hsmputil;
 
+import com.craftmayham.hsmputil.ability.HsmpUtilAbilities;
 import com.craftmayham.hsmputil.block.LiquidHoneyBlock;
 import com.craftmayham.hsmputil.block.ModBlocks;
+import com.craftmayham.hsmputil.condition.HsmpUtilConditions;
 import com.craftmayham.hsmputil.effect.ModEffects;
 import com.craftmayham.hsmputil.entity.ModEntities;
 import com.craftmayham.hsmputil.entity.client.CockroachRenderer;
 import com.craftmayham.hsmputil.fluid.ModFluidTypes;
 import com.craftmayham.hsmputil.fluid.ModFluids;
+import com.craftmayham.hsmputil.gui.HeroOrVillainScreen;
 import com.craftmayham.hsmputil.item.ModItems;
+import com.craftmayham.hsmputil.network.ModMessages;
+import com.craftmayham.hsmputil.network.TeamOpenPacket;
 import com.mojang.logging.LogUtils;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -34,8 +44,12 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.scores.PlayerTeam;
+import net.minecraft.world.scores.Scoreboard;
+import net.minecraft.world.scores.Team;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
+import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
@@ -45,7 +59,9 @@ import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.living.LivingChangeTargetEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -55,6 +71,9 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
+import net.minecraftforge.network.PacketDistributor;
+import net.threetag.palladiumcore.event.LifecycleEvents;
+import net.threetag.palladiumcore.forge.PalladiumCoreForge;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -72,7 +91,7 @@ public class HsmpMod
     public HsmpMod(FMLJavaModLoadingContext context)
     {
         IEventBus modEventBus = context.getModEventBus();
-
+        PalladiumCoreForge.registerModEventBus(HsmpMod.MODID, modEventBus);
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
         // Register ourselves for server and other game events we are interested in
@@ -87,7 +106,13 @@ public class HsmpMod
         ModBlocks.register(modEventBus);
         ModItems.register(modEventBus);
         ModEntities.register(modEventBus);
+        ModMessages.register();
+        HsmpUtilAbilities.ABILITIES.register();
+        HsmpUtilConditions.CONDITION_SERIALIZERS.register();
         // Register our mod's ForgeConfigSpec so that Forge can create and load the config file for us
+    }
+
+    public static void init() {
     }
 
     private void commonSetup(final FMLCommonSetupEvent event)
@@ -103,10 +128,30 @@ public class HsmpMod
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call
     @SubscribeEvent
-    public void onServerStarting(ServerStartingEvent event)
-    {
+    public void onServerStarting(ServerStartedEvent event) {
 
+        MinecraftServer server = event.getServer();
+
+        Scoreboard scoreboard = server.getScoreboard();
+
+        createTeam(scoreboard, "Hero", ChatFormatting.GREEN);
+        createTeam(scoreboard, "Villain", ChatFormatting.RED);
     }
+    private void createTeam(Scoreboard scoreboard, String name, ChatFormatting color) {
+
+        if (scoreboard.getPlayerTeam(name) == null) {
+
+            PlayerTeam team = scoreboard.addPlayerTeam(name);
+
+            team.setDisplayName(Component.literal(name));
+            team.setColor(color);
+            team.setDeathMessageVisibility(Team.Visibility.HIDE_FOR_OWN_TEAM);
+            team.setPlayerPrefix(Component.literal("[" + name + "] "));
+            System.out.println("Created team: " + name);
+        }
+    }
+
+
 
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
     @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
@@ -118,14 +163,28 @@ public class HsmpMod
         }
     }
 
-
     @SubscribeEvent
     public void onEntityJoinWorld(final EntityJoinLevelEvent event) {
         if (!event.getEntity().level().isClientSide && event.getEntity() instanceof Mob) {
 
         }
     }
+    @SubscribeEvent public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
 
+            player.getServer().execute(() -> {
+                Team team = player.getTeam();
+                String name = (team != null) ? team.getName() : "";
+
+                if (!name.equals("Hero") && !name.equals("Villain")) {
+                    ModMessages.INSTANCE.send(
+                            PacketDistributor.PLAYER.with(() -> player),
+                            new TeamOpenPacket()
+                    );
+                }
+            });
+
+        }
 
     @SubscribeEvent
     public void onRightClick(PlayerInteractEvent.RightClickItem event) {
@@ -201,6 +260,7 @@ public class HsmpMod
         mob.level().addFreshEntity(newMob);
         mob.discard();
     }*/
+
 
 
 }
